@@ -1,0 +1,21 @@
+.form-select, .form-control, .input-group-text {
+  background-color: rgba(#DFE0DF, 0.8);
+}
+
+.form-control {
+  &:disabled {
+    background-color: rgba(#FD8B7C, 0.8);
+  } 
+  &:focus {
+    background-color: rgba(#FFD988, 0.7);
+  }
+}
+
+.resp {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  @include media-breakpoint-down(lg) {
+    flex-direction: column;
+    width: 100%;
+  }
+}

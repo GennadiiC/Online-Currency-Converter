@@ -1,0 +1,15 @@
+.h1 {
+  font-weight: 700;
+}
+
+.header-body {
+  background:
+  radial-gradient(
+    closest-side, 
+    rgba(#FF93C2, 0.7), 
+    rgba(#B48B00, 0.7),
+    rgba(#00D1E4, 0.7)    
+  );
+  box-shadow: 4px 4px 4px 2px rgba(#402E32, 0.2);
+  border-radius: 15px;
+}
