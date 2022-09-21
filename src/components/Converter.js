@@ -105,7 +105,6 @@ export const Converter = () => {
 
   return (
     <div>
-      {console.log(inputState)}
       <div className="d-flex resp">
         <div className="input-group">
           <span className="input-group-text">
