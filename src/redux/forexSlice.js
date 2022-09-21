@@ -14,8 +14,8 @@ export const euro = <FontAwesomeIcon icon={faEuroSign} className='mx-2' />
 export const usd = <FontAwesomeIcon icon={faDollarSign} className='mx-2' />
 export const pound = <FontAwesomeIcon icon={faSterlingSign} className='mx-2' />
 export const hryvnia = <FontAwesomeIcon icon={faHryvniaSign} className='mx-2' />
-export const coins = <FontAwesomeIcon icon={faCoins} className='mx-2' />
-export const arrows = <FontAwesomeIcon icon={faRightLeft} className='mx-2' />
+export const coins = <FontAwesomeIcon icon={faCoins} className='m-0' />
+export const arrows = <FontAwesomeIcon icon={faRightLeft} />
 
 // hardcoded currencies object for displaying in header
 export const currencies = [
@@ -75,21 +75,29 @@ const forexSlice = createSlice({
       state.convertState.secondBase = state.inputState.firstCurrency
     },
     setFirstCurrency: (state, action) => {
-      state.inputState.firstCurrency = action.payload !== undefined ? action.payload : ''
+      state.inputState.firstCurrency = action.payload !== '' ? action.payload : ''
       if (state.convertState.amount && state.convertState.amount === state.inputState.secondAmount) {
         state.convertState.firstBase = state.inputState.secondCurrency
         state.convertState.secondBase = action.payload
         } else {
           state.convertState.firstBase = action.payload
         }
+      if (action.payload === '') {
+        state.inputState.firstAmount = ''
+        state.convertState.amount = ''
+      }
     },
     setSecondCurrency: (state, action) => {
-      state.inputState.secondCurrency = action.payload !== undefined ? action.payload : ''
+      state.inputState.secondCurrency = action.payload !== '' ? action.payload : ''
       if (state.convertState.amount && state.convertState.amount === state.inputState.secondAmount) {
         state.convertState.firstBase = action.payload
         state.convertState.secondBase = state.inputState.firstCurrency
       } else {
         state.convertState.secondBase = action.payload
+      }
+      if (action.payload === '') {
+        state.inputState.secondAmount = ''
+        state.convertState.amount = ''
       }
     }
   }

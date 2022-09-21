@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react"
-import { useGetConvertQuery } from "../redux/forexApi"
+import { useGetConvertQuery, useGetLatestQuery } from "../redux/forexApi"
+import { useGetSymbolQuery } from "../redux/symbolsApi"
 import { 
   setFirstAmount, 
   setSecondAmount,
   setFirstCurrency,
   setSecondCurrency,
-  euro,
-  usd,
-  pound,
-  hryvnia,
   coins, 
   arrows
 } from "../redux/forexSlice"
@@ -21,21 +18,39 @@ export const Converter = () => {
   const dispatch = useDispatch()
   const { inputState, convertState } = useSelector(state => state.forex)
 
-  // icon, dynamically displayed near currency name state
-  const [firstIcon, setFirstIcon] = useState(coins)
-  const [secondIcon, setSecondIcon] = useState(coins)
+
+  // symbols queried to set icons
+  const [firstSymbol, setFirstSymbol] = useState('')
+  const [secondSymbol, setSecondSymbol] = useState('')
 
   const { 
     register,  
     setValue, 
     watch
-  } = useForm({})
+  } = useForm()
 
   // coversion rtk query hook
   const { 
     data: convertData, 
     isSuccess: convertSuccess
   } = useGetConvertQuery([convertState.firstBase, convertState.secondBase, convertState.amount])
+
+  // latest currencies available rtk query hook
+  const {
+    data: latestData,
+    isSuccess: latestSuccess
+  } = useGetLatestQuery()
+
+  // currency symbols rtk query hooks
+  const {
+    data: symbolsData1,
+    isSuccess: symbolsSuccess1
+  } = useGetSymbolQuery(firstSymbol)
+
+  const {
+    data: symbolsData2,
+    isSuccess: symbolsSuccess2
+  } = useGetSymbolQuery(secondSymbol)
   
   // variables displayed inside input fields
   let firstAmount
@@ -47,22 +62,21 @@ export const Converter = () => {
   } else if (convertSuccess && inputState.secondAmount === convertState.amount) {
     firstAmount = convertData.result 
     secondAmount = convertState.amount
-  } 
+  } else if (convertSuccess && inputState.firstCurrency === '') {
+    firstAmount = ''
+    secondAmount = ''
+  } else if (convertSuccess && inputState.secondCurrency === '') {
+    firstAmount = ''
+    secondAmount = ''
+  }
 
 
   // method for icons' dynamically rendered near to currency select boxes
   const iconDisplay = (inp) => {
-    if (inp === '') {
-      return coins
-    } else if (inp === 'EUR') { 
-      return euro
-    } else if (inp === 'USD') {
-      return usd
-    } else if (inp === 'GBP') {
-      return pound
-    } else if (inp === 'UAH') {
-      return hryvnia
-    }
+    let [curr] = inp
+    let ob = curr.currencies
+    let [parsed] = Object.values(ob)
+    return parsed.symbol
   }
 
   // effects for setting input values 
@@ -70,7 +84,7 @@ export const Converter = () => {
     setValue(
       'firstAmount', 
       convertState.amount === inputState.firstAmount ? 
-      watch('firstAmount') : 
+      inputState.firstAmount : 
       secondAmount === '' && convertState.amount === '' ?
       '' : 
       firstAmount 
@@ -81,34 +95,43 @@ export const Converter = () => {
     setValue(
       'secondAmount', 
       convertState.amount === inputState.secondAmount ? 
-      watch('secondAmount') : 
+      inputState.secondAmount : 
       firstAmount === '' && convertState.amount === '' ?
       '' :
       secondAmount
     )
   }, [secondAmount])
-
+  
 
   return (
     <div>
+      {console.log(inputState)}
       <div className="d-flex resp">
         <div className="input-group">
-          <span className="input-group-text">{firstIcon}</span>
+          <span className="input-group-text">
+            {
+              symbolsSuccess1 ? iconDisplay(symbolsData1) : coins
+            }
+          </span>
           <select 
             {...register('firstCurrency', {
               onChange: () => {
                 dispatch(setFirstCurrency(watch('firstCurrency')))
-                setFirstIcon(iconDisplay(watch('firstCurrency')))
+                setFirstSymbol(watch('firstCurrency'))
+                console.log(watch('firstCurrency'))
               }
             })}
             className="form-select" 
             size='1'
           >
             <option label='Currency'></option>
-            <option value='EUR'>Euro</option>
-            <option value='USD'>US Dollar</option>
-            <option value='GBP'>Great Britain Pound</option>
-            <option value='UAH'>Ukrainian Hryvnia</option>
+            {
+              latestSuccess ?
+              Object.keys(latestData.rates).map((item, i) => 
+                <option key={i} value={item}>{item}</option>
+              ) :
+              null
+            }
           </select> 
           <input 
             {...register('firstAmount', {
@@ -120,28 +143,34 @@ export const Converter = () => {
             className="form-control" 
             placeholder="Enter amount" 
             autoComplete="off"
-          />
-          
+          /> 
         </div>
         <div className="m-2">
           {arrows}
         </div>
         <div className="input-group">
-          <span className="input-group-text">{secondIcon}</span>
+          <span className="input-group-text">
+            {
+              symbolsSuccess2 ? iconDisplay(symbolsData2) : coins
+            }
+          </span>
           <select 
             {...register('secondCurrency', {
               onChange: () => {
                 dispatch(setSecondCurrency(watch('secondCurrency')))
-                setSecondIcon(iconDisplay(watch('secondCurrency')))
+                setSecondSymbol(watch('secondCurrency'))
               }
             })}
             className="form-select" 
           >
             <option label='Currency'></option>
-            <option value='EUR'>Euro</option>
-            <option value='USD'>US Dollar</option>
-            <option value='GBP'>Great Britain Pound</option>
-            <option value='UAH'>Ukrainian Hryvnia</option>
+            {
+              latestSuccess ?
+              Object.keys(latestData.rates).map((item, i) => 
+                <option key={i} label={item}>{item}</option>
+              ) :
+              null
+            }
           </select>
           <input 
             {...register('secondAmount', {

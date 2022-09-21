@@ -11,6 +11,18 @@
   }
 }
 
+.input-group {
+  text-align: center;
+}
+
+.input-group-text {
+  display: inline;
+  width: 3rem;
+  font-weight: 900;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
 .resp {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -19,3 +31,4 @@
     width: 100%;
   }
 }
+

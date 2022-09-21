@@ -11,11 +11,15 @@ export const forexApi = createApi({
     // separate query for header fluctation display
     getFluctation: builder.query({
       query: (queries) => `fluctuation?start_date=${queries[0]}&end_date=${queries[1]}&base=${queries[2]}`
+    }),
+    getLatest: builder.query({
+      query: () => 'latest'
     })
   })
 })
 
 export const { 
   useGetConvertQuery, 
-  useGetFluctationQuery 
+  useGetFluctationQuery,
+  useGetLatestQuery 
 } = forexApi
